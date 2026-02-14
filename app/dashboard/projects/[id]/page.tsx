@@ -63,16 +63,34 @@ export default async function ProjectDetailPage({ params }: Props) {
       </div>
 
       <div className="mt-10 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-          Categories
-        </h2>
-        <p className="mt-1 text-sm text-zinc-500">
-          Categories and form builder will be available in the next phase.
-        </p>
-        <p className="mt-2 text-sm text-zinc-500">
-          This project has {project._count.categories} categor
-          {project._count.categories === 1 ? "y" : "ies"}.
-        </p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+              Categories
+            </h2>
+            <p className="mt-1 text-sm text-zinc-500">
+              Manage testimonial categories and forms for this project.
+            </p>
+            <p className="mt-2 text-sm text-zinc-500">
+              {project._count.categories} categor
+              {project._count.categories === 1 ? "y" : "ies"}.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href={`/dashboard/projects/${project.id}/categories/new`}
+              className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+            >
+              Add category
+            </Link>
+            <Link
+              href={`/dashboard/projects/${project.id}/categories`}
+              className="rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            >
+              Manage categories
+            </Link>
+          </div>
+        </div>
       </div>
 
       <DeleteProjectButton projectId={project.id} projectName={project.name} />
