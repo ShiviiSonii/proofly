@@ -8,10 +8,74 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
+  id        String    @id @default(uuid())
   name      String
-  email     String   @unique
+  email     String    @unique
   password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  projects  Project[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Project {
+  id          String                @id @default(uuid())
+  name        String
+  description String?
+  ownerId     String
+  owner       User                  @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  categories  TestimonialCategory[]
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  @@index([ownerId])
+}
+
+model TestimonialCategory {
+  id          String                @id @default(uuid())
+  name        String
+  slug        String
+  description String?
+  projectId   String
+  project     Project               @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  questions   FormQuestion[]
+  testimonials Testimonial[]
+  isActive    Boolean               @default(true)
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  @@unique([projectId, slug])
+  @@index([projectId])
+  @@index([slug])
+}
+
+model FormQuestion {
+  id         String              @id @default(uuid())
+  categoryId String
+  category   TestimonialCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  label      String
+  type       String              // 'text', 'textarea', 'email', 'number', 'rating', 'file', 'dropdown', 'checkbox', 'radio'
+  required   Boolean             @default(false)
+  order      Int
+  placeholder String?
+  options    Json?               // For dropdown, radio, checkbox types
+  validation Json?               // Store validation rules (min, max, pattern, etc.)
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+
+  @@index([categoryId, order])
+}
+
+model Testimonial {
+  id         String              @id @default(uuid())
+  categoryId String
+  category   TestimonialCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  data       Json                // Store all form responses as key-value pairs
+  status     String              @default("pending") // 'pending', 'approved', 'rejected'
+  submittedBy String?            // Optional: name/email of submitter
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+
+  @@index([categoryId])
+  @@index([status])
+  @@index([createdAt])
 }
