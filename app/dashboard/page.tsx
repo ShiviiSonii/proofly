@@ -1,70 +1,68 @@
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
 
 export default async function DashboardPage() {
-    const session = await auth();
-    if (!session?.user) redirect("/sign-in");
+  const session = await auth();
+  if (!session?.user) redirect("/sign-in");
 
-    const user = session.user;
+  const user = session.user;
+  const projectCount = await prisma.project.count({
+    where: { ownerId: session.user.id },
+  });
+  const testimonialCount = await prisma.testimonial.count();
 
-    return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-black">
-            {/* Navbar */}
-            <nav className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-                <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-6">
-                    <span className="text-lg font-bold text-zinc-900 dark:text-zinc-50">Proofly</span>
+  return (
+    <>
+      <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+        Dashboard
+      </h1>
+      <p className="mt-1 text-sm text-zinc-500">Welcome back, {user.name}!</p>
 
-                    <div className="flex items-center gap-4">
-                        <span className="text-sm text-zinc-600 dark:text-zinc-400">{user.email}</span>
-                        <form
-                            action={async () => {
-                                "use server";
-                                await signOut({ redirectTo: "/sign-in" });
-                            }}
-                        >
-                            <button
-                                type="submit"
-                                className="rounded-lg border border-zinc-200 px-3 py-1.5 text-sm text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
-                            >
-                                Sign out
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </nav>
-
-            {/* Content */}
-            <main className="mx-auto max-w-5xl px-6 py-10">
-                <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Dashboard</h1>
-                <p className="mt-1 text-sm text-zinc-500">
-                    Welcome back, {user.name}!
-                </p>
-
-                {/* Stats */}
-                <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                    {[
-                        { label: "Total Testimonials", value: "0" },
-                        { label: "Pending", value: "0" },
-                        { label: "Published", value: "0" },
-                    ].map((stat) => (
-                        <div
-                            key={stat.label}
-                            className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950"
-                        >
-                            <p className="text-sm text-zinc-500">{stat.label}</p>
-                            <p className="mt-1 text-2xl font-bold text-zinc-900 dark:text-zinc-50">{stat.value}</p>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Empty state */}
-                <div className="mt-10 flex flex-col items-center rounded-xl border-2 border-dashed border-zinc-200 py-16 dark:border-zinc-800">
-                    <p className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">No testimonials yet</p>
-                    <p className="mt-1 text-sm text-zinc-500">
-                        Start collecting testimonials from your customers.
-                    </p>
-                </div>
-            </main>
+      <div className="mt-8 grid gap-4 sm:grid-cols-3">
+        <div className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
+          <p className="text-sm text-zinc-500">Projects</p>
+          <p className="mt-1 text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+            {projectCount}
+          </p>
+          <Link
+            href="/dashboard/projects"
+            className="mt-2 inline-block text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
+          >
+            View projects →
+          </Link>
         </div>
-    );
+        <div className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
+          <p className="text-sm text-zinc-500">Total Testimonials</p>
+          <p className="mt-1 text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+            {testimonialCount}
+          </p>
+        </div>
+        <div className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
+          <p className="text-sm text-zinc-500">Pending</p>
+          <p className="mt-1 text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+            0
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-10 flex flex-col items-center rounded-xl border-2 border-dashed border-zinc-200 py-16 dark:border-zinc-800">
+        <p className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+          {projectCount === 0 ? "No projects yet" : "Manage your projects"}
+        </p>
+        <p className="mt-1 text-sm text-zinc-500">
+          {projectCount === 0
+            ? "Create a project to start collecting testimonials."
+            : "Add categories and forms to collect testimonials."}
+        </p>
+        <Link
+          href="/dashboard/projects/new"
+          className="mt-4 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+        >
+          {projectCount === 0 ? "Create your first project" : "New project"}
+        </Link>
+      </div>
+    </>
+  );
 }
