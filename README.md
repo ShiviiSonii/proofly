@@ -1,36 +1,95 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Proofly — Testimonial Management System
+
+Automated testimonial collection and management system built with Next.js, Prisma, and Supabase.
+
+## Tech Stack
+
+- **Next.js 16** — React framework with App Router
+- **Prisma** — Type-safe ORM for database queries
+- **Supabase** — PostgreSQL database hosting
+- **NextAuth.js v5** — Authentication (email/password)
+- **Tailwind CSS** — Styling
+- **TypeScript** — Type safety
 
 ## Getting Started
 
-First, run the development server:
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Set Up Supabase Database
+
+1. Create a project at [supabase.com](https://supabase.com)
+2. Go to **Settings → Database**
+3. Copy your **Connection string** (use the "URI" format)
+4. Copy your **Direct connection** string (for migrations)
+
+### 3. Configure Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+# Supabase Database (from Settings → Database)
+DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres"
+DIRECT_URL="postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres"
+
+# NextAuth Secret (generate a random string)
+AUTH_SECRET="your-random-secret-here"
+AUTH_URL="http://localhost:3000"
+```
+
+**Generate AUTH_SECRET:**
+```bash
+openssl rand -base64 32
+```
+
+### 4. Set Up Database Schema
+
+```bash
+npx prisma db push
+```
+
+This creates the `User` table in your Supabase database.
+
+### 5. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+proofly/
+├── app/                    # Next.js App Router
+│   ├── (auth)/            # Auth pages (sign-in, sign-up)
+│   ├── api/auth/          # Auth API routes
+│   └── dashboard/         # Protected dashboard
+├── components/            # React components
+├── lib/                   # Utilities (Prisma client)
+├── prisma/                # Database schema
+└── auth.ts               # NextAuth configuration
+```
+
+## Features
+
+- ✅ Email/password authentication
+- ✅ Protected routes (middleware)
+- ✅ Secure password hashing (bcrypt)
+- ✅ JWT session management
+- ✅ Type-safe database queries (Prisma)
+
+## Database
+
+The project uses **Supabase** (PostgreSQL) for data storage. All database operations go through Prisma for type safety and easy migrations.
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Prisma Documentation](https://www.prisma.io/docs)
+- [Supabase Documentation](https://supabase.com/docs)
+- [NextAuth.js Documentation](https://next-auth.js.org)
