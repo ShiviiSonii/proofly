@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
-import { SessionProvider } from "@/components/session-provider";
+import { SessionProvider } from "@/components/SessionProvider";
 import "./globals.css";
 
 const geist = Geist({ subsets: ["latin"] });

@@ -1,10 +1,12 @@
 import { auth } from "@/auth";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { CategoryForm } from "@/components/categories/CategoryForm";
 import { DeleteCategoryButton } from "@/components/categories/DeleteCategoryButton";
 import { ShareTestimonialLink } from "@/components/public/ShareTestimonialLink";
+import { EmbedSnippet } from "@/components/embed/EmbedSnippet";
 
 type Props = { params: Promise<{ id: string; categoryId: string }> };
 
@@ -27,6 +29,12 @@ export default async function CategoryDetailPage({ params }: Props) {
   });
 
   if (!category || category.projectId !== projectId) notFound();
+
+  // Embed snippet needs the app's public URL (e.g. https://proofly.vercel.app). Get it from request headers.
+  const headersList = await headers();
+  const host = headersList.get("x-forwarded-host") ?? headersList.get("host") ?? "localhost:3000"; // Proxy sends real host here.
+  const proto = headersList.get("x-forwarded-proto") ?? "http"; // Proxy sends https when user uses https.
+  const baseUrl = host.includes("localhost") ? `http://${host}` : `${proto}://${host}`; // http on localhost, else proto + host.
 
   return (
     <>
@@ -111,6 +119,18 @@ export default async function CategoryDetailPage({ params }: Props) {
           >
             Edit form
           </Link>
+        </div>
+      </div>
+
+      <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
+        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+          Embed testimonials on your website
+        </h2>
+        <p className="mt-1 text-sm text-zinc-500">
+          Show approved testimonials on any site. Only testimonials you approve will appear.
+        </p>
+        <div className="mt-4">
+          <EmbedSnippet categoryId={category.id} categoryName={category.name} baseUrl={baseUrl} />
         </div>
       </div>
 

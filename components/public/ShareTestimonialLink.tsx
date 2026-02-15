@@ -8,10 +8,10 @@ type ShareTestimonialLinkProps = {
 
 export function ShareTestimonialLink({ categoryId }: ShareTestimonialLinkProps) {
   const [copied, setCopied] = useState(false);
-  const [url, setUrl] = useState(`/t/${categoryId}`);
+  const [url, setUrl] = useState(`/submit/${categoryId}`);
 
   useEffect(() => {
-    setUrl(`${window.location.origin}/t/${categoryId}`);
+    setUrl(`${window.location.origin}/submit/${categoryId}`);
   }, [categoryId]);
 
   async function handleCopy() {
