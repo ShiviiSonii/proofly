@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { CategoryForm } from "@/components/categories/CategoryForm";
 import { DeleteCategoryButton } from "@/components/categories/DeleteCategoryButton";
+import { ShareTestimonialLink } from "@/components/public/ShareTestimonialLink";
 
 type Props = { params: Promise<{ id: string; categoryId: string }> };
 
@@ -79,6 +80,18 @@ export default async function CategoryDetailPage({ params }: Props) {
       </div>
 
       <div className="mt-10 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
+        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+          Shareable form link
+        </h2>
+        <p className="mt-1 text-sm text-zinc-500">
+          Share this link to collect testimonials. Form is only available when the category is active.
+        </p>
+        <div className="mt-3">
+          <ShareTestimonialLink categoryId={category.id} />
+        </div>
+      </div>
+
+      <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
