@@ -10,6 +10,7 @@ async function getCategoryAndCheckProject(projectId: string, categoryId: string)
   if (!project) return { error: "Project not found", status: 404 as const };
   if (project.ownerId !== session.user.id) return { error: "Forbidden", status: 403 as const };
 
+  
   const category = await prisma.testimonialCategory.findUnique({
     where: { id: categoryId },
   });

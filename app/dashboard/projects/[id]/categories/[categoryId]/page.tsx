@@ -115,16 +115,26 @@ export default async function CategoryDetailPage({ params }: Props) {
       </div>
 
       <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-          Testimonials
-        </h2>
-        <p className="mt-1 text-sm text-zinc-500">
-          View and manage submitted testimonials in a later phase.
-        </p>
-        <p className="mt-2 text-sm text-zinc-500">
-          {category._count.testimonials} testimonial
-          {category._count.testimonials === 1 ? "" : "s"} submitted.
-        </p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+              Testimonials
+            </h2>
+            <p className="mt-1 text-sm text-zinc-500">
+              View and manage submitted testimonials.
+            </p>
+            <p className="mt-2 text-sm text-zinc-500">
+              {category._count.testimonials} testimonial
+              {category._count.testimonials === 1 ? "" : "s"} submitted.
+            </p>
+          </div>
+          <Link
+            href={`/dashboard/projects/${projectId}/categories/${categoryId}/testimonials`}
+            className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+          >
+            View testimonials
+          </Link>
+        </div>
       </div>
 
       <DeleteCategoryButton
