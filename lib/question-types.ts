@@ -7,6 +7,8 @@ export const QUESTION_TYPES = [
   { value: "dropdown", label: "Dropdown" },
   { value: "radio", label: "Radio buttons" },
   { value: "checkbox", label: "Checkbox" },
+  { value: "image", label: "Image upload" },
+  { value: "video", label: "Video URL" },
 ] as const;
 
 export type QuestionTypeValue = (typeof QUESTION_TYPES)[number]["value"];

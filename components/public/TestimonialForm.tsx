@@ -130,6 +130,7 @@ export function TestimonialForm({ category, questions }: TestimonialFormProps) {
                 value={data[q.id] ?? (q.type === "checkbox" ? [] : "")}
                 onChange={(value) => updateValue(q.id, value)}
                 error={fieldErrors[q.id]}
+                categoryId={category.id}
               />
             ))}
           </div>

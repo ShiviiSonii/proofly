@@ -20,7 +20,7 @@ async function getCategoryAndCheckProject(projectId: string, categoryId: string)
   return { category, session };
 }
 
-const QUESTION_TYPES = ["text", "textarea", "email", "number", "rating", "dropdown", "checkbox", "radio"] as const;
+const QUESTION_TYPES = ["text", "textarea", "email", "number", "rating", "dropdown", "checkbox", "radio", "image", "video"] as const;
 
 export async function GET(
   _req: Request,

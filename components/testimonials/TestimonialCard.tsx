@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { MediaDisplay } from "@/components/public/MediaDisplay";
 
-type Question = { id: string; label: string };
+type Question = { id: string; label: string; type?: string };
 
 type TestimonialCardProps = {
   projectId: string;
@@ -35,11 +36,16 @@ export function TestimonialCard({
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
-  const questionMap = new Map(questions.map((q) => [q.id, q.label]));
+  const questionMap = new Map(
+    questions.map((q) => [q.id, { label: q.label, type: q.type ?? "" }])
+  );
   const data = testimonial.data as Record<string, unknown>;
   const entries = Object.entries(data).map(([id, value]) => ({
-    label: questionMap.get(id) ?? id,
+    id,
+    label: questionMap.get(id)?.label ?? id,
+    type: questionMap.get(id)?.type ?? "",
     value: formatValue(value),
+    rawValue: value,
   }));
 
   async function updateStatus(status: string) {
@@ -112,10 +118,16 @@ export function TestimonialCard({
       {expanded && (
         <div className="border-t border-zinc-200 px-4 py-3 dark:border-zinc-800">
           <dl className="space-y-2">
-            {entries.map(({ label, value }) => (
-              <div key={label}>
+            {entries.map(({ id, label, type, value, rawValue }) => (
+              <div key={id}>
                 <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{label}</dt>
-                <dd className="mt-0.5 text-sm text-zinc-900 dark:text-zinc-100">{value}</dd>
+                <dd className="mt-0.5 text-sm text-zinc-900 dark:text-zinc-100">
+                  {(type === "image" || type === "video") && typeof rawValue === "string" ? (
+                    <MediaDisplay type={type} value={rawValue} />
+                  ) : (
+                    value
+                  )}
+                </dd>
               </div>
             ))}
           </dl>

@@ -99,7 +99,7 @@ export default async function TestimonialsPage({ params, searchParams }: Props) 
                   submittedBy: t.submittedBy,
                   createdAt: t.createdAt.toISOString(),
                 }}
-                questions={category.questions.map((q) => ({ id: q.id, label: q.label }))}
+                questions={category.questions.map((q) => ({ id: q.id, label: q.label, type: q.type }))}
               />
             </li>
           ))}
