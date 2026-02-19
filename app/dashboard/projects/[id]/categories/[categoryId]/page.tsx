@@ -7,6 +7,7 @@ import { CategoryForm } from "@/components/categories/CategoryForm";
 import { DeleteCategoryButton } from "@/components/categories/DeleteCategoryButton";
 import { ShareTestimonialLink } from "@/components/public/ShareTestimonialLink";
 import { EmbedSnippet } from "@/components/embed/EmbedSnippet";
+import { RequestTestimonialForm } from "@/components/requests/RequestTestimonialForm";
 
 type Props = { params: Promise<{ id: string; categoryId: string }> };
 
@@ -97,6 +98,14 @@ export default async function CategoryDetailPage({ params }: Props) {
         <div className="mt-3">
           <ShareTestimonialLink categoryId={category.id} />
         </div>
+      </div>
+
+      <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
+        <RequestTestimonialForm
+          projectId={projectId}
+          categoryId={category.id}
+          categoryName={category.name}
+        />
       </div>
 
       <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
