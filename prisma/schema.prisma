@@ -13,6 +13,7 @@ model User {
   email     String    @unique
   password  String
   projects  Project[]
+  apiKeys   ApiKey[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
@@ -24,6 +25,7 @@ model Project {
   ownerId     String
   owner       User                  @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   categories  TestimonialCategory[]
+  apiKeys     ApiKey[]
   createdAt   DateTime              @default(now())
   updatedAt   DateTime              @updatedAt
 
@@ -78,4 +80,21 @@ model Testimonial {
   @@index([categoryId])
   @@index([status])
   @@index([createdAt])
+}
+
+model ApiKey {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name       String
+  tokenHash  String   @unique
+  createdAt  DateTime @default(now())
+  lastUsedAt DateTime?
+  revoked    Boolean  @default(false)
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([tokenHash])
 }

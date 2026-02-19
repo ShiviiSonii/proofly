@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { ProjectForm } from "@/components/projects/ProjectForm";
 import { DeleteProjectButton } from "@/components/projects/DeleteProjectButton";
+import { ApiKeysSection } from "@/components/api-keys/ApiKeysSection";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -92,6 +93,8 @@ export default async function ProjectDetailPage({ params }: Props) {
           </div>
         </div>
       </div>
+
+      <ApiKeysSection projectId={project.id} />
 
       <DeleteProjectButton projectId={project.id} projectName={project.name} />
     </>
