@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -211,9 +212,12 @@ export function ProjectsDashboard({ initialProjects, userName }: ProjectsDashboa
           </p>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">{projectCountLabel}</p>
         </div>
-        <Button type="button" onClick={() => setIsCreateOpen(true)}>
-          Add project
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button type="button" onClick={() => setIsCreateOpen(true)}>
+            Add project
+          </Button>
+          <ThemeToggle />
+        </div>
       </div>
 
       {error && (

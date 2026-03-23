@@ -3,6 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { ProjectSidebar } from "@/components/dashboard/ProjectSidebar";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   children: React.ReactNode;
@@ -38,12 +40,12 @@ export default async function ProjectLayout({ children, params }: Props) {
               <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">{project.description}</p>
             )}
           </div>
-          <Link
-            href="/dashboard"
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
-          >
-            Back to projects
-          </Link>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline">
+              <Link href="/dashboard">Back to projects</Link>
+            </Button>
+            <ThemeToggle />
+          </div>
         </div>
 
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
