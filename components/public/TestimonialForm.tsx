@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 import { FormField } from "./FormField";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 type Question = {
   id: string;
@@ -81,44 +85,35 @@ export function TestimonialForm({ category, questions }: TestimonialFormProps) {
 
   if (success) {
     return (
-      <div className="mx-auto max-w-md rounded-xl border border-zinc-200 bg-white p-8 text-center dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">
-          Thank you!
-        </h2>
-        <p className="mt-2 text-sm text-zinc-500">
-          Your testimonial has been submitted successfully.
-        </p>
-      </div>
+      <Card className="mx-auto max-w-md text-center">
+        <CardHeader>
+          <CardTitle>Thank you!</CardTitle>
+          <CardDescription>Your testimonial has been submitted successfully.</CardDescription>
+        </CardHeader>
+      </Card>
     );
   }
 
   return (
     <form onSubmit={handleSubmit} className="mx-auto max-w-md space-y-6">
-      <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-          {category.name}
-        </h2>
-        {category.description && (
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            {category.description}
-          </p>
-        )}
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>{category.name}</CardTitle>
+          {category.description ? <CardDescription>{category.description}</CardDescription> : null}
+        </CardHeader>
+      </Card>
 
       {questions.length === 0 ? (
         <p className="text-sm text-zinc-500">This form has no questions yet.</p>
       ) : (
         <>
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              Your name (optional)
-            </label>
-            <input
+            <Label>Your name (optional)</Label>
+            <Input
               type="text"
               value={submittedBy}
               onChange={(e) => setSubmittedBy(e.target.value)}
               placeholder="John Doe"
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
             />
           </div>
 
@@ -141,13 +136,13 @@ export function TestimonialForm({ category, questions }: TestimonialFormProps) {
             </p>
           )}
 
-          <button
+          <Button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-zinc-900 py-3 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+            className="w-full"
           >
             {loading ? "Submitting..." : "Submit testimonial"}
-          </button>
+          </Button>
         </>
       )}
     </form>

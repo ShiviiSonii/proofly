@@ -2,6 +2,20 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type Category = {
   id: string;
@@ -40,34 +54,6 @@ function toCategory(item: ApiCategory): Category {
     questionsCount: item._count?.questions ?? 0,
     testimonialsCount: item._count?.testimonials ?? 0,
   };
-}
-
-function Modal({
-  title,
-  children,
-  onClose,
-}: {
-  title: string;
-  children: React.ReactNode;
-  onClose: () => void;
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-lg rounded-xl border border-zinc-200 bg-white p-5 shadow-xl dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">{title}</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md px-2 py-1 text-sm text-zinc-500 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-          >
-            Close
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
 }
 
 export function CategoriesManager({ projectId, initialCategories }: CategoriesManagerProps) {
@@ -219,13 +205,9 @@ export function CategoriesManager({ projectId, initialCategories }: CategoriesMa
           <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Categories</h2>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">All categories for this project.</p>
         </div>
-        <button
-          type="button"
-          onClick={() => setIsCreateOpen(true)}
-          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-        >
+        <Button type="button" onClick={() => setIsCreateOpen(true)}>
           Add category
-        </button>
+        </Button>
       </div>
 
       {error && (
@@ -241,18 +223,16 @@ export function CategoriesManager({ projectId, initialCategories }: CategoriesMa
       ) : (
         <div className="space-y-3">
           {categories.map((category) => (
-            <div
-              key={category.id}
-              className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900"
-            >
+            <Card key={category.id}>
+              <CardContent className="space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="font-medium text-zinc-900 dark:text-zinc-50">{category.name}</p>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">Slug: {category.slug}</p>
                 </div>
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                <Badge variant={category.isActive ? "default" : "secondary"}>
                   {category.isActive ? "Active" : "Inactive"}
-                </span>
+                </Badge>
               </div>
 
               {category.description && (
@@ -264,111 +244,103 @@ export function CategoriesManager({ projectId, initialCategories }: CategoriesMa
               </div>
 
               <div className="mt-3 flex gap-2">
-                <button
+                <Button
                   type="button"
                   onClick={() => {
                     setEmbedCategory(category);
                     setIsEmbedOpen(true);
                   }}
-                  className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                  variant="outline"
+                  size="sm"
                 >
                   Embed code
-                </button>
-                <Link
-                  href={`/submit/${category.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                >
-                  Open actual form
-                </Link>
-                <Link
-                  href={`/dashboard/projects/${projectId}/categories/${category.id}`}
-                  className="rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-                >
-                  Open questions
-                </Link>
-                <button
+                </Button>
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/submit/${category.id}`} target="_blank" rel="noopener noreferrer">
+                    Open actual form
+                  </Link>
+                </Button>
+                <Button asChild size="sm">
+                  <Link href={`/dashboard/projects/${projectId}/categories/${category.id}`}>
+                    Open questions
+                  </Link>
+                </Button>
+                <Button
                   type="button"
                   onClick={() => openEditModal(category)}
-                  className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                  variant="outline"
+                  size="sm"
                 >
                   Edit
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
                   onClick={() => openDeleteModal(category)}
-                  className="rounded-md border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-900/20"
+                  variant="destructive"
+                  size="sm"
                 >
                   Delete
-                </button>
+                </Button>
               </div>
-            </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
 
       {isCreateOpen && (
-        <Modal
-          title="Create category"
-          onClose={() => {
-            if (loading) return;
-            setIsCreateOpen(false);
-            setCreateName("");
-            setCreateSlug("");
-            setCreateDescription("");
+        <Dialog
+          open={isCreateOpen}
+          onOpenChange={(open) => {
+            if (!open) {
+              setIsCreateOpen(false);
+            }
           }}
         >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create category</DialogTitle>
+              <DialogDescription>Create a new category for this project.</DialogDescription>
+            </DialogHeader>
           <form onSubmit={handleCreate} className="space-y-3">
-            <div>
-              <label htmlFor="create-category-name" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Name
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="create-category-name">Name</Label>
+              <Input
                 id="create-category-name"
                 type="text"
                 value={createName}
                 onChange={(e) => setCreateName(e.target.value)}
                 required
                 disabled={loading}
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
               />
             </div>
 
-            <div>
-              <label htmlFor="create-category-slug" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Slug (optional)
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="create-category-slug">Slug (optional)</Label>
+              <Input
                 id="create-category-slug"
                 type="text"
                 value={createSlug}
                 onChange={(e) => setCreateSlug(e.target.value)}
                 disabled={loading}
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
               />
             </div>
 
-            <div>
-              <label
-                htmlFor="create-category-description"
-                className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
-              >
-                Description (optional)
-              </label>
-              <textarea
+            <div className="space-y-2">
+              <Label htmlFor="create-category-description">Description (optional)</Label>
+              <Textarea
                 id="create-category-description"
                 value={createDescription}
                 onChange={(e) => setCreateDescription(e.target.value)}
                 rows={4}
                 disabled={loading}
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
               />
             </div>
 
-            <div className="flex justify-end gap-2">
-              <button
+            <DialogFooter>
+              <Button
                 type="button"
+                variant="outline"
                 onClick={() => {
                   setIsCreateOpen(false);
                   setCreateName("");
@@ -376,79 +348,69 @@ export function CategoriesManager({ projectId, initialCategories }: CategoriesMa
                   setCreateDescription("");
                 }}
                 disabled={loading}
-                className="rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
               >
                 Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-              >
+              </Button>
+              <Button type="submit" disabled={loading}>
                 {loading ? "Creating..." : "Create category"}
-              </button>
-            </div>
+              </Button>
+            </DialogFooter>
           </form>
-        </Modal>
+          </DialogContent>
+        </Dialog>
       )}
 
       {isEditOpen && selectedCategory && (
-        <Modal
-          title={`Edit ${selectedCategory.name}`}
-          onClose={() => {
-            if (loading) return;
-            setIsEditOpen(false);
-            setSelectedCategory(null);
+        <Dialog
+          open={isEditOpen}
+          onOpenChange={(open) => {
+            if (!open) {
+              setIsEditOpen(false);
+              setSelectedCategory(null);
+            }
           }}
         >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{`Edit ${selectedCategory.name}`}</DialogTitle>
+              <DialogDescription>Update category details.</DialogDescription>
+            </DialogHeader>
           <form onSubmit={handleEdit} className="space-y-3">
-            <div>
-              <label htmlFor="edit-category-name" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Name
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="edit-category-name">Name</Label>
+              <Input
                 id="edit-category-name"
                 type="text"
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
                 required
                 disabled={loading}
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
               />
             </div>
 
-            <div>
-              <label htmlFor="edit-category-slug" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Slug
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="edit-category-slug">Slug</Label>
+              <Input
                 id="edit-category-slug"
                 type="text"
                 value={editSlug}
                 onChange={(e) => setEditSlug(e.target.value)}
                 disabled={loading}
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
               />
             </div>
 
-            <div>
-              <label
-                htmlFor="edit-category-description"
-                className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
-              >
-                Description (optional)
-              </label>
-              <textarea
+            <div className="space-y-2">
+              <Label htmlFor="edit-category-description">Description (optional)</Label>
+              <Textarea
                 id="edit-category-description"
                 value={editDescription}
                 onChange={(e) => setEditDescription(e.target.value)}
                 rows={4}
                 disabled={loading}
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
               />
             </div>
 
-            <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+            <Label className="flex items-center gap-2">
               <input
                 type="checkbox"
                 checked={editActive}
@@ -457,100 +419,98 @@ export function CategoriesManager({ projectId, initialCategories }: CategoriesMa
                 className="rounded border-zinc-300"
               />
               Active category
-            </label>
+            </Label>
 
-            <div className="flex justify-end gap-2">
-              <button
+            <DialogFooter>
+              <Button
                 type="button"
+                variant="outline"
                 onClick={() => {
                   setIsEditOpen(false);
                   setSelectedCategory(null);
                 }}
                 disabled={loading}
-                className="rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
               >
                 Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-              >
+              </Button>
+              <Button type="submit" disabled={loading}>
                 {loading ? "Saving..." : "Save changes"}
-              </button>
-            </div>
+              </Button>
+            </DialogFooter>
           </form>
-        </Modal>
+          </DialogContent>
+        </Dialog>
       )}
 
       {isDeleteOpen && selectedCategory && (
-        <Modal
-          title="Delete category"
-          onClose={() => {
-            if (loading) return;
-            setIsDeleteOpen(false);
-            setSelectedCategory(null);
+        <Dialog
+          open={isDeleteOpen}
+          onOpenChange={(open) => {
+            if (!open) {
+              setIsDeleteOpen(false);
+              setSelectedCategory(null);
+            }
           }}
         >
-          <div className="space-y-4">
-            <p className="text-sm text-zinc-700 dark:text-zinc-300">
-              Are you sure you want to delete <strong>{selectedCategory.name}</strong>? This action cannot be
-              undone.
-            </p>
-            <div className="flex justify-end gap-2">
-              <button
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete category</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete <strong>{selectedCategory.name}</strong>? This action cannot be
+                undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
                 type="button"
+                variant="outline"
                 onClick={() => {
                   setIsDeleteOpen(false);
                   setSelectedCategory(null);
                 }}
                 disabled={loading}
-                className="rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
               >
                 Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={loading}
-                className="rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
-              >
+              </Button>
+              <Button type="button" variant="destructive" onClick={handleDelete} disabled={loading}>
                 {loading ? "Deleting..." : "Delete category"}
-              </button>
-            </div>
-          </div>
-        </Modal>
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
 
       {isEmbedOpen && embedCategory && (
-        <Modal
-          title={`Embed code: ${embedCategory.name}`}
-          onClose={() => {
-            setIsEmbedOpen(false);
-            setEmbedCategory(null);
+        <Dialog
+          open={isEmbedOpen}
+          onOpenChange={(open) => {
+            if (!open) {
+              setIsEmbedOpen(false);
+              setEmbedCategory(null);
+            }
           }}
         >
-          <div className="space-y-3">
-            <p className="text-sm text-zinc-600 dark:text-zinc-300">
-              Paste this iframe where you want testimonials to appear.
-            </p>
-            <code className="block whitespace-pre-wrap rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{`Embed code: ${embedCategory.name}`}</DialogTitle>
+              <DialogDescription>Paste this iframe where you want testimonials to appear.</DialogDescription>
+            </DialogHeader>
+            <code className="block whitespace-pre-wrap rounded-md border p-3 text-xs">
               {`<iframe src="${typeof window !== "undefined" ? window.location.origin : ""}/embed/testimonials/${embedCategory.id}" width="100%" height="600" style="border:0;" loading="lazy"></iframe>`}
             </code>
-            <div className="flex justify-end">
-              <button
+            <DialogFooter>
+              <Button
                 type="button"
                 onClick={async () => {
                   const embedCode = `<iframe src="${window.location.origin}/embed/testimonials/${embedCategory.id}" width="100%" height="600" style="border:0;" loading="lazy"></iframe>`;
                   await navigator.clipboard.writeText(embedCode);
                 }}
-                className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
               >
                 Copy embed code
-              </button>
-            </div>
-          </div>
-        </Modal>
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

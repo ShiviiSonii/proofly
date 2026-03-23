@@ -2,6 +2,25 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type QuestionType =
   | "text"
@@ -50,27 +69,23 @@ function Modal({
   title,
   children,
   onClose,
+  description,
 }: {
   title: string;
   children: React.ReactNode;
   onClose: () => void;
+  description?: string;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-xl rounded-xl border border-zinc-200 bg-white p-5 shadow-xl dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">{title}</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md px-2 py-1 text-sm text-zinc-500 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-          >
-            Close
-          </button>
-        </div>
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          {description ? <DialogDescription>{description}</DialogDescription> : null}
+        </DialogHeader>
         {children}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -275,13 +290,12 @@ export function CategoryFormsManager({
             Embed code
           </button>
         </div>
-        <button
+        <Button
           type="button"
           onClick={() => setIsCreateOpen(true)}
-          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
         >
           Add question
-        </button>
+        </Button>
       </div>
 
       {error && (
@@ -311,20 +325,22 @@ export function CategoryFormsManager({
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <button
+                  <Button
                     type="button"
                     onClick={() => openEditModal(question)}
-                    className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                    variant="outline"
+                    size="sm"
                   >
                     Edit
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
                     onClick={() => openDeleteModal(question)}
-                    className="rounded-md border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-900/20"
+                    variant="destructive"
+                    size="sm"
                   >
                     Delete
-                  </button>
+                  </Button>
                 </div>
               </div>
               {question.placeholder && (
@@ -353,73 +369,62 @@ export function CategoryFormsManager({
         >
           <form onSubmit={handleCreate} className="space-y-3">
             <div>
-              <label htmlFor="create-form-label" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Label
-              </label>
-              <input
+              <Label htmlFor="create-form-label">Label</Label>
+              <Input
                 id="create-form-label"
                 type="text"
                 value={createLabel}
                 onChange={(e) => setCreateLabel(e.target.value)}
                 required
                 disabled={loading}
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
               />
             </div>
 
             <div>
-              <label htmlFor="create-form-type" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Type
-              </label>
-              <select
-                id="create-form-type"
+              <Label htmlFor="create-form-type">Type</Label>
+              <Select
                 value={createType}
-                onChange={(e) => setCreateType(e.target.value as QuestionType)}
+                onValueChange={(value) => setCreateType(value as QuestionType)}
                 disabled={loading}
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
               >
-                {QUESTION_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger id="create-form-type" className="mt-1 w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {QUESTION_TYPES.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
-              <label
-                htmlFor="create-form-placeholder"
-                className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
-              >
-                Placeholder (optional)
-              </label>
-              <input
+              <Label htmlFor="create-form-placeholder">Placeholder (optional)</Label>
+              <Input
                 id="create-form-placeholder"
                 type="text"
                 value={createPlaceholder}
                 onChange={(e) => setCreatePlaceholder(e.target.value)}
                 disabled={loading}
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
               />
             </div>
 
             {["dropdown", "checkbox", "radio"].includes(createType) && (
               <div>
-                <label htmlFor="create-form-options" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  Options (comma separated)
-                </label>
-                <input
+                <Label htmlFor="create-form-options">Options (comma separated)</Label>
+                <Input
                   id="create-form-options"
                   type="text"
                   value={createOptions}
                   onChange={(e) => setCreateOptions(e.target.value)}
                   disabled={loading}
-                  className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
                 />
               </div>
             )}
 
-            <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+            <Label className="flex items-center gap-2">
               <input
                 type="checkbox"
                 checked={createRequired}
@@ -428,28 +433,27 @@ export function CategoryFormsManager({
                 className="rounded border-zinc-300"
               />
               Required field
-            </label>
+            </Label>
 
-            <div className="flex justify-end gap-2">
-              <button
+            <DialogFooter>
+              <Button
                 type="button"
                 onClick={() => {
                   setIsCreateOpen(false);
                   resetCreateState();
                 }}
                 disabled={loading}
-                className="rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                variant="outline"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
                 disabled={loading}
-                className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
               >
                 {loading ? "Creating..." : "Create question"}
-              </button>
-            </div>
+              </Button>
+            </DialogFooter>
           </form>
         </Modal>
       )}
@@ -465,70 +469,62 @@ export function CategoryFormsManager({
         >
           <form onSubmit={handleEdit} className="space-y-3">
             <div>
-              <label htmlFor="edit-form-label" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Label
-              </label>
-              <input
+              <Label htmlFor="edit-form-label">Label</Label>
+              <Input
                 id="edit-form-label"
                 type="text"
                 value={editLabel}
                 onChange={(e) => setEditLabel(e.target.value)}
                 required
                 disabled={loading}
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
               />
             </div>
 
             <div>
-              <label htmlFor="edit-form-type" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Type
-              </label>
-              <select
-                id="edit-form-type"
+              <Label htmlFor="edit-form-type">Type</Label>
+              <Select
                 value={editType}
-                onChange={(e) => setEditType(e.target.value as QuestionType)}
+                onValueChange={(value) => setEditType(value as QuestionType)}
                 disabled={loading}
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
               >
-                {QUESTION_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger id="edit-form-type" className="mt-1 w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {QUESTION_TYPES.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
-              <label htmlFor="edit-form-placeholder" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Placeholder (optional)
-              </label>
-              <input
+              <Label htmlFor="edit-form-placeholder">Placeholder (optional)</Label>
+              <Input
                 id="edit-form-placeholder"
                 type="text"
                 value={editPlaceholder}
                 onChange={(e) => setEditPlaceholder(e.target.value)}
                 disabled={loading}
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
               />
             </div>
 
             {["dropdown", "checkbox", "radio"].includes(editType) && (
               <div>
-                <label htmlFor="edit-form-options" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  Options (comma separated)
-                </label>
-                <input
+                <Label htmlFor="edit-form-options">Options (comma separated)</Label>
+                <Input
                   id="edit-form-options"
                   type="text"
                   value={editOptions}
                   onChange={(e) => setEditOptions(e.target.value)}
                   disabled={loading}
-                  className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
                 />
               </div>
             )}
 
-            <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+            <Label className="flex items-center gap-2">
               <input
                 type="checkbox"
                 checked={editRequired}
@@ -537,28 +533,27 @@ export function CategoryFormsManager({
                 className="rounded border-zinc-300"
               />
               Required field
-            </label>
+            </Label>
 
-            <div className="flex justify-end gap-2">
-              <button
+            <DialogFooter>
+              <Button
                 type="button"
                 onClick={() => {
                   setIsEditOpen(false);
                   setSelectedQuestion(null);
                 }}
                 disabled={loading}
-                className="rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                variant="outline"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
                 disabled={loading}
-                className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
               >
                 {loading ? "Saving..." : "Save changes"}
-              </button>
-            </div>
+              </Button>
+            </DialogFooter>
           </form>
         </Modal>
       )}
@@ -566,6 +561,7 @@ export function CategoryFormsManager({
       {isDeleteOpen && selectedQuestion && (
         <Modal
           title="Delete question"
+          description={`Delete "${selectedQuestion.label}"? This action cannot be undone.`}
           onClose={() => {
             if (loading) return;
             setIsDeleteOpen(false);
@@ -573,30 +569,27 @@ export function CategoryFormsManager({
           }}
         >
           <div className="space-y-4">
-            <p className="text-sm text-zinc-700 dark:text-zinc-300">
-              Delete <strong>{selectedQuestion.label}</strong>? This action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-2">
-              <button
+            <DialogFooter>
+              <Button
                 type="button"
                 onClick={() => {
                   setIsDeleteOpen(false);
                   setSelectedQuestion(null);
                 }}
                 disabled={loading}
-                className="rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                variant="outline"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={handleDelete}
                 disabled={loading}
-                className="rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
+                variant="destructive"
               >
                 {loading ? "Deleting..." : "Delete question"}
-              </button>
-            </div>
+              </Button>
+            </DialogFooter>
           </div>
         </Modal>
       )}
@@ -604,29 +597,26 @@ export function CategoryFormsManager({
       {isEmbedOpen && (
         <Modal
           title={`Embed code: ${categoryName}`}
+          description="Paste this iframe where you want testimonials to appear."
           onClose={() => {
             setIsEmbedOpen(false);
           }}
         >
           <div className="space-y-3">
-            <p className="text-sm text-zinc-600 dark:text-zinc-300">
-              Paste this iframe where you want testimonials to appear.
-            </p>
             <code className="block whitespace-pre-wrap rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
               {`<iframe src="${typeof window !== "undefined" ? window.location.origin : ""}/embed/testimonials/${categoryId}" width="100%" height="600" style="border:0;" loading="lazy"></iframe>`}
             </code>
-            <div className="flex justify-end">
-              <button
+            <DialogFooter>
+              <Button
                 type="button"
                 onClick={async () => {
                   const embedCode = `<iframe src="${window.location.origin}/embed/testimonials/${categoryId}" width="100%" height="600" style="border:0;" loading="lazy"></iframe>`;
                   await navigator.clipboard.writeText(embedCode);
                 }}
-                className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
               >
                 Copy embed code
-              </button>
-            </div>
+              </Button>
+            </DialogFooter>
           </div>
         </Modal>
       )}

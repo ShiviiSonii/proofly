@@ -2,6 +2,19 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type Project = {
   id: string;
@@ -41,34 +54,6 @@ function toProject(apiProject: ApiProject): Project {
     updatedAt: apiProject.updatedAt,
     categoriesCount: apiProject._count?.categories ?? 0,
   };
-}
-
-function Modal({
-  title,
-  children,
-  onClose,
-}: {
-  title: string;
-  children: React.ReactNode;
-  onClose: () => void;
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-lg rounded-xl border border-zinc-200 bg-white p-5 shadow-xl dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">{title}</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md px-2 py-1 text-sm text-zinc-500 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-          >
-            Close
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
 }
 
 export function ProjectsDashboard({ initialProjects, userName }: ProjectsDashboardProps) {
@@ -226,13 +211,9 @@ export function ProjectsDashboard({ initialProjects, userName }: ProjectsDashboa
           </p>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">{projectCountLabel}</p>
         </div>
-        <button
-          type="button"
-          onClick={() => setIsCreateOpen(true)}
-          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-        >
+        <Button type="button" onClick={() => setIsCreateOpen(true)}>
           Add project
-        </button>
+        </Button>
       </div>
 
       {error && (
@@ -250,212 +231,185 @@ export function ProjectsDashboard({ initialProjects, userName }: ProjectsDashboa
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
-            <div
-              key={project.id}
-              className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950"
-            >
-              <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">{project.name}</h3>
-              {project.description ? (
-                <p className="mt-1 line-clamp-3 text-sm text-zinc-600 dark:text-zinc-300">
-                  {project.description}
-                </p>
-              ) : (
-                <p className="mt-1 text-sm text-zinc-400 dark:text-zinc-500">No description</p>
-              )}
+            <Card key={project.id}>
+              <CardHeader>
+                <CardTitle>{project.name}</CardTitle>
+                <CardDescription>
+                  {project.description || "No description"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
               <div className="mt-3 space-y-1 text-xs text-zinc-500 dark:text-zinc-400">
                 <p>Categories: {project.categoriesCount}</p>
                 <p>Created: {formatDate(project.createdAt)}</p>
                 <p>Updated: {formatDate(project.updatedAt)}</p>
               </div>
               <div className="mt-4 flex gap-2">
-                <Link
-                  href={`/dashboard/projects/${project.id}`}
-                  className="rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-                >
-                  Open
-                </Link>
-                <button
+                <Button asChild size="sm">
+                  <Link href={`/dashboard/projects/${project.id}`}>Open</Link>
+                </Button>
+                <Button
                   type="button"
                   onClick={() => openEditModal(project)}
-                  className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                  variant="outline"
+                  size="sm"
                 >
                   Edit
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
                   onClick={() => openDeleteModal(project)}
-                  className="rounded-md border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-900/20"
+                  variant="destructive"
+                  size="sm"
                 >
                   Delete
-                </button>
+                </Button>
               </div>
-            </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
 
       {isCreateOpen && (
-        <Modal
-          title="Create project"
-          onClose={() => {
-            if (loading) return;
-            setIsCreateOpen(false);
-            resetCreateState();
-          }}
-        >
+        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Create project</DialogTitle>
+              <DialogDescription>Add a new project to your dashboard.</DialogDescription>
+            </DialogHeader>
           <form onSubmit={handleCreateProject} className="space-y-3">
-            <div>
-              <label htmlFor="create-name" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Name
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="create-name">Name</Label>
+              <Input
                 id="create-name"
                 type="text"
                 value={createName}
                 onChange={(e) => setCreateName(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
                 required
                 disabled={loading}
               />
             </div>
-            <div>
-              <label
-                htmlFor="create-description"
-                className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
-              >
-                Description (optional)
-              </label>
-              <textarea
+            <div className="space-y-2">
+              <Label htmlFor="create-description">Description (optional)</Label>
+              <Textarea
                 id="create-description"
                 value={createDescription}
                 onChange={(e) => setCreateDescription(e.target.value)}
                 rows={4}
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
                 disabled={loading}
               />
             </div>
-            <div className="flex justify-end gap-2">
-              <button
+            <DialogFooter>
+              <Button
                 type="button"
                 onClick={() => {
                   setIsCreateOpen(false);
                   resetCreateState();
                 }}
-                className="rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                variant="outline"
                 disabled={loading}
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
-                className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
                 disabled={loading}
               >
                 {loading ? "Creating..." : "Create"}
-              </button>
-            </div>
+              </Button>
+            </DialogFooter>
           </form>
-        </Modal>
+          </DialogContent>
+        </Dialog>
       )}
 
       {isEditOpen && selectedProject && (
-        <Modal
-          title={`Edit ${selectedProject.name}`}
-          onClose={() => {
-            if (loading) return;
-            setIsEditOpen(false);
-            setSelectedProject(null);
-          }}
-        >
+        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>{`Edit ${selectedProject.name}`}</DialogTitle>
+              <DialogDescription>Update project details.</DialogDescription>
+            </DialogHeader>
           <form onSubmit={handleEditProject} className="space-y-3">
-            <div>
-              <label htmlFor="edit-name" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Name
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Name</Label>
+              <Input
                 id="edit-name"
                 type="text"
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
                 required
                 disabled={loading}
               />
             </div>
-            <div>
-              <label htmlFor="edit-description" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Description (optional)
-              </label>
-              <textarea
+            <div className="space-y-2">
+              <Label htmlFor="edit-description">Description (optional)</Label>
+              <Textarea
                 id="edit-description"
                 value={editDescription}
                 onChange={(e) => setEditDescription(e.target.value)}
                 rows={4}
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
                 disabled={loading}
               />
             </div>
-            <div className="flex justify-end gap-2">
-              <button
+            <DialogFooter>
+              <Button
                 type="button"
                 onClick={() => {
                   setIsEditOpen(false);
                   setSelectedProject(null);
                 }}
-                className="rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                variant="outline"
                 disabled={loading}
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
-                className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
                 disabled={loading}
               >
                 {loading ? "Saving..." : "Save changes"}
-              </button>
-            </div>
+              </Button>
+            </DialogFooter>
           </form>
-        </Modal>
+          </DialogContent>
+        </Dialog>
       )}
 
       {isDeleteOpen && selectedProject && (
-        <Modal
-          title="Delete project"
-          onClose={() => {
-            if (loading) return;
-            setIsDeleteOpen(false);
-            setSelectedProject(null);
-          }}
-        >
-          <div className="space-y-4">
-            <p className="text-sm text-zinc-700 dark:text-zinc-300">
-              Are you sure you want to delete <strong>{selectedProject.name}</strong>? This action cannot be
-              undone.
-            </p>
-            <div className="flex justify-end gap-2">
-              <button
+        <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Delete project</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete <strong>{selectedProject.name}</strong>? This action cannot be
+                undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
                 type="button"
                 onClick={() => {
                   setIsDeleteOpen(false);
                   setSelectedProject(null);
                 }}
-                className="rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                variant="outline"
                 disabled={loading}
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={handleDeleteProject}
-                className="rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
+                variant="destructive"
                 disabled={loading}
               >
                 {loading ? "Deleting..." : "Delete project"}
-              </button>
-            </div>
-          </div>
-        </Modal>
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 type TestimonialStatus = "pending" | "approved" | "rejected";
 
@@ -50,22 +51,24 @@ export function TestimonialStatusActions({
   return (
     <div className="mt-3">
       <div className="flex gap-2">
-        <button
+        <Button
           type="button"
           onClick={() => updateStatus("approved")}
           disabled={loadingStatus !== null || currentStatus === "approved"}
-          className="rounded-md border border-green-200 px-3 py-1.5 text-xs font-medium text-green-700 hover:bg-green-50 disabled:opacity-50 dark:border-green-900 dark:text-green-400 dark:hover:bg-green-900/20"
+          variant="outline"
+          size="sm"
         >
           {loadingStatus === "approved" ? "Approving..." : "Approve"}
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
           onClick={() => updateStatus("rejected")}
           disabled={loadingStatus !== null || currentStatus === "rejected"}
-          className="rounded-md border border-red-200 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-900/20"
+          variant="destructive"
+          size="sm"
         >
           {loadingStatus === "rejected" ? "Rejecting..." : "Reject"}
-        </button>
+        </Button>
       </div>
       {error && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{error}</p>}
     </div>

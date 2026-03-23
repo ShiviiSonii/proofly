@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 type ProjectSidebarProps = {
   projectId: string;
@@ -28,17 +29,14 @@ export function ProjectSidebar({ projectId }: ProjectSidebarProps) {
           const fullPath = `${basePath}${item.href}`;
           const isActive = pathname === fullPath;
           return (
-            <Link
+            <Button
               key={item.label}
-              href={fullPath}
-              className={`block rounded-lg px-3 py-2 text-sm transition ${
-                isActive
-                  ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
-                  : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-              }`}
+              asChild
+              variant={isActive ? "default" : "ghost"}
+              className="w-full justify-start"
             >
-              {item.label}
-            </Link>
+              <Link href={fullPath}>{item.label}</Link>
+            </Button>
           );
         })}
       </nav>

@@ -3,6 +3,9 @@ import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { TestimonialStatusActions } from "@/components/dashboard/TestimonialStatusActions";
+import { TestimonialFilters } from "@/components/dashboard/TestimonialFilters";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -73,60 +76,16 @@ export default async function ProjectTestimonialsPage({ params, searchParams }: 
         </p>
       </div>
 
-      <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">
-        <form className="grid gap-3 sm:grid-cols-3">
-          <div>
-            <label htmlFor="status" className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">
-              Status
-            </label>
-            <select
-              id="status"
-              name="status"
-              defaultValue={status}
-              className="mt-1 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
-            >
-              <option value="">All statuses</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="categoryId" className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">
-              Category
-            </label>
-            <select
-              id="categoryId"
-              name="categoryId"
-              defaultValue={selectedCategoryExists ? categoryId : ""}
-              className="mt-1 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
-            >
-              <option value="">All categories</option>
-              {project.categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex items-end gap-2">
-            <button
-              type="submit"
-              className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-            >
-              Apply filters
-            </button>
-            <Link
-              href={`/dashboard/projects/${id}/testimonials`}
-              className="rounded-md border border-zinc-300 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
-            >
-              Clear
-            </Link>
-          </div>
-        </form>
-      </div>
+      <Card>
+        <CardContent>
+          <TestimonialFilters
+            projectId={id}
+            categories={project.categories}
+            initialStatus={status}
+            initialCategoryId={selectedCategoryExists ? categoryId : ""}
+          />
+        </CardContent>
+      </Card>
 
       {testimonials.length === 0 ? (
         <p className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
@@ -135,18 +94,18 @@ export default async function ProjectTestimonialsPage({ params, searchParams }: 
       ) : (
         <div className="space-y-3">
           {testimonials.map((testimonial) => (
-            <div
-              key={testimonial.id}
-              className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900"
-            >
+            <Card key={testimonial.id}>
+              <CardHeader>
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+                <CardTitle className="text-sm">
                   {testimonial.submittedBy || "Anonymous"}
-                </p>
-                <span className="text-xs capitalize text-zinc-500 dark:text-zinc-400">
+                </CardTitle>
+                <Badge variant={testimonial.status === "approved" ? "default" : testimonial.status === "rejected" ? "destructive" : "secondary"}>
                   {testimonial.status}
-                </span>
+                </Badge>
               </div>
+              </CardHeader>
+              <CardContent>
               <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                 Category: {testimonial.category.name}{" "}
                 <Link
@@ -176,7 +135,8 @@ export default async function ProjectTestimonialsPage({ params, searchParams }: 
                 testimonialId={testimonial.id}
                 currentStatus={testimonial.status as "pending" | "approved" | "rejected"}
               />
-            </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
