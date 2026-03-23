@@ -1,176 +1,48 @@
+import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { headers } from "next/headers";
-import Link from "next/link";
-import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { CategoryForm } from "@/components/categories/CategoryForm";
-import { DeleteCategoryButton } from "@/components/categories/DeleteCategoryButton";
-import { ShareTestimonialLink } from "@/components/public/ShareTestimonialLink";
-import { EmbedSnippet } from "@/components/embed/EmbedSnippet";
-import { RequestTestimonialForm } from "@/components/requests/RequestTestimonialForm";
+import { CategoryFormsManager } from "@/components/dashboard/CategoryFormsManager";
 
-type Props = { params: Promise<{ id: string; categoryId: string }> };
+type Props = {
+  params: Promise<{ id: string; categoryId: string }>;
+};
 
-export default async function CategoryDetailPage({ params }: Props) {
+export default async function CategoryFormsPage({ params }: Props) {
   const session = await auth();
-  if (!session?.user) notFound();
+  if (!session?.user?.id) {
+    redirect("/sign-in");
+  }
 
-  const { id: projectId, categoryId } = await params;
+  const { id, categoryId } = await params;
+
   const project = await prisma.project.findUnique({
-    where: { id: projectId },
+    where: { id },
+    select: { ownerId: true },
   });
 
-  if (!project || project.ownerId !== session.user.id) notFound();
+  if (!project || project.ownerId !== session.user.id) {
+    notFound();
+  }
 
   const category = await prisma.testimonialCategory.findUnique({
     where: { id: categoryId },
     include: {
-      _count: { select: { questions: true, testimonials: true } },
+      questions: {
+        orderBy: { order: "asc" },
+      },
     },
   });
 
-  if (!category || category.projectId !== projectId) notFound();
-
-  // Embed snippet needs the app's public URL (e.g. https://proofly.vercel.app). Get it from request headers.
-  const headersList = await headers();
-  const host = headersList.get("x-forwarded-host") ?? headersList.get("host") ?? "localhost:3000"; // Proxy sends real host here.
-  const proto = headersList.get("x-forwarded-proto") ?? "http"; // Proxy sends https when user uses https.
-  const baseUrl = host.includes("localhost") ? `http://${host}` : `${proto}://${host}`; // http on localhost, else proto + host.
+  if (!category || category.projectId !== id) {
+    notFound();
+  }
 
   return (
-    <>
-      <div className="mb-6">
-        <Link
-          href={`/dashboard/projects/${projectId}/categories`}
-          className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
-        >
-          ← Back to categories
-        </Link>
-      </div>
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-            {category.name}
-          </h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            /{category.slug}
-          </p>
-          {category.description && (
-            <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-              {category.description}
-            </p>
-          )}
-          <div className="mt-2 flex items-center gap-4 text-sm text-zinc-500">
-            <span>{category._count.questions} questions</span>
-            <span>{category._count.testimonials} testimonials</span>
-            {!category.isActive && (
-              <span className="rounded bg-zinc-200 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-700 dark:text-zinc-400">
-                Inactive
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-8">
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-          Edit category
-        </h2>
-        <div className="mt-4">
-          <CategoryForm
-            mode="edit"
-            projectId={projectId}
-            categoryId={category.id}
-            defaultName={category.name}
-            defaultSlug={category.slug}
-            defaultDescription={category.description ?? ""}
-          />
-        </div>
-      </div>
-
-      <div className="mt-10 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-          Shareable form link
-        </h2>
-        <p className="mt-1 text-sm text-zinc-500">
-          Share this link to collect testimonials. Form is only available when the category is active.
-        </p>
-        <div className="mt-3">
-          <ShareTestimonialLink categoryId={category.id} />
-        </div>
-      </div>
-
-      <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-        <RequestTestimonialForm
-          projectId={projectId}
-          categoryId={category.id}
-          categoryName={category.name}
-        />
-      </div>
-
-      <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-              Form setup
-            </h2>
-            <p className="mt-1 text-sm text-zinc-500">
-              Add and reorder form questions for this category.
-            </p>
-            <p className="mt-2 text-sm text-zinc-500">
-              {category._count.questions} question
-              {category._count.questions === 1 ? "" : "s"}.
-            </p>
-          </div>
-          <Link
-            href={`/dashboard/projects/${projectId}/categories/${categoryId}/setup`}
-            className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-          >
-            Edit form
-          </Link>
-        </div>
-      </div>
-
-      <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-          Embed testimonials on your website
-        </h2>
-        <p className="mt-1 text-sm text-zinc-500">
-          Show approved testimonials on any site. Only testimonials you approve will appear.
-        </p>
-        <div className="mt-4">
-          <EmbedSnippet categoryId={category.id} categoryName={category.name} baseUrl={baseUrl} />
-        </div>
-      </div>
-
-      <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-              Testimonials
-            </h2>
-            <p className="mt-1 text-sm text-zinc-500">
-              View and manage submitted testimonials.
-            </p>
-            <p className="mt-2 text-sm text-zinc-500">
-              {category._count.testimonials} testimonial
-              {category._count.testimonials === 1 ? "" : "s"} submitted.
-            </p>
-          </div>
-          <Link
-            href={`/dashboard/projects/${projectId}/categories/${categoryId}/testimonials`}
-            className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-          >
-            View testimonials
-          </Link>
-        </div>
-      </div>
-
-      <DeleteCategoryButton
-        projectId={projectId}
-        categoryId={category.id}
-        categoryName={category.name}
-      />
-    </>
+    <CategoryFormsManager
+      projectId={id}
+      categoryId={category.id}
+      categoryName={category.name}
+      initialQuestions={category.questions}
+    />
   );
 }
