@@ -20,6 +20,8 @@ export default async function ProjectOverviewPage({ params }: Props) {
     where: { id },
     select: {
       id: true,
+      name: true,
+      description: true,
       ownerId: true,
       _count: {
         select: {
@@ -69,10 +71,20 @@ export default async function ProjectOverviewPage({ params }: Props) {
     <div className="space-y-5">
       <div>
         <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Overview</h2>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Default project page with high-level stats.
-        </p>
+        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Project details and high-level stats.</p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardDescription>Project Name</CardDescription>
+          <CardTitle>{project.name}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">
+            {project.description?.trim() || "No project description added yet."}
+          </p>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Card>

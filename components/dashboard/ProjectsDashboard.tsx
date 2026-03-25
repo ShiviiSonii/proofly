@@ -1,9 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { CheckCircle2, FolderTree, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LogoutButton } from "@/components/dashboard/LogoutButton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,43 +23,46 @@ type Project = {
   id: string;
   name: string;
   description: string | null;
-  createdAt: string;
-  updatedAt: string;
   categoriesCount: number;
+  acceptedTestimonialsCount: number;
 };
 
 type ProjectsDashboardProps = {
   initialProjects: Project[];
   userName: string;
+  userEmail: string;
 };
 
 type ApiProject = {
   id: string;
   name: string;
   description: string | null;
-  createdAt: string;
-  updatedAt: string;
+  categories?: Array<{
+    _count?: {
+      testimonials?: number;
+    };
+  }>;
   _count?: {
     categories?: number;
   };
 };
-
-function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleString();
-}
 
 function toProject(apiProject: ApiProject): Project {
   return {
     id: apiProject.id,
     name: apiProject.name,
     description: apiProject.description,
-    createdAt: apiProject.createdAt,
-    updatedAt: apiProject.updatedAt,
     categoriesCount: apiProject._count?.categories ?? 0,
+    acceptedTestimonialsCount:
+      apiProject.categories?.reduce(
+        (total, category) => total + (category._count?.testimonials ?? 0),
+        0
+      ) ?? 0,
   };
 }
 
-export function ProjectsDashboard({ initialProjects, userName }: ProjectsDashboardProps) {
+export function ProjectsDashboard({ initialProjects, userName, userEmail }: ProjectsDashboardProps) {
+  const router = useRouter();
   const [projects, setProjects] = useState<Project[]>(initialProjects);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -73,6 +78,9 @@ export function ProjectsDashboard({ initialProjects, userName }: ProjectsDashboa
 
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
+  const displayName = userName.trim() || "User";
+  const displayEmail = userEmail.trim() || "No email";
+  const nameInitial = displayName.charAt(0).toUpperCase() || "U";
 
   const projectCountLabel = useMemo(() => {
     if (projects.length === 1) return "1 project";
@@ -103,6 +111,10 @@ export function ProjectsDashboard({ initialProjects, userName }: ProjectsDashboa
   function openDeleteModal(project: Project) {
     setSelectedProject(project);
     setIsDeleteOpen(true);
+  }
+
+  function openProjectWorkspace(projectId: string) {
+    router.push(`/dashboard/projects/${projectId}`);
   }
 
   async function handleCreateProject(e: React.FormEvent) {
@@ -203,77 +215,141 @@ export function ProjectsDashboard({ initialProjects, userName }: ProjectsDashboa
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Dashboard</h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Welcome, {userName}. Manage your projects in one place.
-          </p>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">{projectCountLabel}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button type="button" onClick={() => setIsCreateOpen(true)}>
-            Add project
-          </Button>
-          <ThemeToggle />
+    <div className="space-y-4">
+      <div className="p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-lg font-heading tracking-wider">Proofly</p>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <div className="flex items-center gap-3 px-3 py-2">
+              <div className="flex size-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
+                {nameInitial}
+              </div>
+              <div className="min-w-0">
+                <p className="max-w-44 truncate text-sm font-medium">{displayName}</p>
+                <p className="max-w-44 truncate text-xs text-muted-foreground">{displayEmail}</p>
+              </div>
+              <LogoutButton
+                iconOnly
+                label="Log out"
+                className="size-8 border-border bg-transparent text-foreground hover:bg-accent hover:text-accent-foreground"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
-      {error && (
-        <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
-          {error}
-        </div>
-      )}
+      <main className="p-5">
+        <div className="space-y-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Projects</h1>
+              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                Welcome to Proofly, {displayName}. Manage your projects in one place.
+              </p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">{projectCountLabel}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button type="button" onClick={() => setIsCreateOpen(true)}>
+                Add project
+              </Button>
+            </div>
+          </div>
 
-      {projects.length === 0 ? (
-        <div className="rounded-xl border-2 border-dashed border-zinc-200 bg-white p-10 text-center dark:border-zinc-800 dark:bg-zinc-950">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            No projects yet. Click &quot;Add project&quot; to create your first one.
-          </p>
-        </div>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
-            <Card key={project.id}>
-              <CardHeader>
-                <CardTitle>{project.name}</CardTitle>
-                <CardDescription>
-                  {project.description || "No description"}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-              <div className="mt-3 space-y-1 text-xs text-zinc-500 dark:text-zinc-400">
-                <p>Categories: {project.categoriesCount}</p>
-                <p>Created: {formatDate(project.createdAt)}</p>
-                <p>Updated: {formatDate(project.updatedAt)}</p>
-              </div>
-              <div className="mt-4 flex gap-2">
-                <Button asChild size="sm">
-                  <Link href={`/dashboard/projects/${project.id}`}>Open</Link>
-                </Button>
-                <Button
-                  type="button"
-                  onClick={() => openEditModal(project)}
-                  variant="outline"
-                  size="sm"
+          {error && (
+            <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+              {error}
+            </div>
+          )}
+
+          {projects.length === 0 ? (
+            <div className="rounded-xl border-2 border-dashed border-zinc-200 bg-white p-10 text-center dark:border-zinc-800 dark:bg-zinc-950">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                No projects yet. Click &quot;Add project&quot; to create your first one.
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {projects.map((project) => (
+                <Card
+                  key={project.id}
+                  className="group cursor-pointer border-zinc-200/80 transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-zinc-800"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => openProjectWorkspace(project.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      openProjectWorkspace(project.id);
+                    }
+                  }}
                 >
-                  Edit
-                </Button>
-                <Button
-                  type="button"
-                  onClick={() => openDeleteModal(project)}
-                  variant="destructive"
-                  size="sm"
-                >
-                  Delete
-                </Button>
-              </div>
-              </CardContent>
-            </Card>
-          ))}
+                  <CardHeader className="space-y-3 pb-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <CardTitle className="line-clamp-1 text-base">{project.name}</CardTitle>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openEditModal(project);
+                          }}
+                          variant="outline"
+                          size="icon"
+                          className="size-8 border-zinc-200 bg-transparent text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                          aria-label={`Edit ${project.name}`}
+                          title="Edit project"
+                        >
+                          <Pencil className="size-4" />
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openDeleteModal(project);
+                          }}
+                          variant="destructive"
+                          size="icon"
+                          className="size-8"
+                          aria-label={`Delete ${project.name}`}
+                          title="Delete project"
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <CardDescription className="line-clamp-2 min-h-10">
+                      {project.description || "No description added yet."}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="rounded-md border bg-zinc-50/80 p-3 dark:bg-zinc-900/50">
+                        <div className="mb-1 flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                          <FolderTree className="size-3.5" />
+                          Categories
+                        </div>
+                        <p className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+                          {project.categoriesCount}
+                        </p>
+                      </div>
+                      <div className="rounded-md border bg-zinc-50/80 p-3 dark:bg-zinc-900/50">
+                        <div className="mb-1 flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                          <CheckCircle2 className="size-3.5" />
+                          Accepted
+                        </div>
+                        <p className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+                          {project.acceptedTestimonialsCount}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
-      )}
+      </main>
 
       {isCreateOpen && (
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>

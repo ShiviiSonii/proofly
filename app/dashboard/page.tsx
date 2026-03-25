@@ -13,24 +13,40 @@ export default async function DashboardPage() {
   const projects = await prisma.project.findMany({
     where: { ownerId: session.user.id },
     orderBy: { createdAt: "desc" },
-    include: { _count: { select: { categories: true } } },
+    include: {
+      _count: { select: { categories: true } },
+      categories: {
+        select: {
+          _count: {
+            select: {
+              testimonials: {
+                where: { status: "approved" },
+              },
+            },
+          },
+        },
+      },
+    },
   });
 
   const initialProjects = projects.map((project) => ({
     id: project.id,
     name: project.name,
     description: project.description,
-    createdAt: project.createdAt.toISOString(),
-    updatedAt: project.updatedAt.toISOString(),
     categoriesCount: project._count.categories,
+    acceptedTestimonialsCount: project.categories.reduce(
+      (total, category) => total + category._count.testimonials,
+      0
+    ),
   }));
 
   return (
-    <div className="min-h-screen bg-zinc-50 px-4 py-10 dark:bg-zinc-950">
-      <div className="mx-auto w-full max-w-5xl">
+    <div className="min-h-screen bg-background p-4 lg:p-6">
+      <div className="w-full">
         <ProjectsDashboard
           initialProjects={initialProjects}
           userName={session.user.name ?? "there"}
+          userEmail={session.user.email ?? "No email"}
         />
       </div>
     </div>
