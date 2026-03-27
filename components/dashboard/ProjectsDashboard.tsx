@@ -247,8 +247,7 @@ export function ProjectsDashboard({ initialProjects, userName, userEmail }: Proj
               <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                 Welcome to Proofly, {displayName}. Manage your projects in one place.
               </p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">{projectCountLabel}</p>
-            </div>
+             </div>
             <div className="flex items-center gap-2">
               <Button type="button" onClick={() => setIsCreateOpen(true)}>
                 Add project
@@ -269,7 +268,7 @@ export function ProjectsDashboard({ initialProjects, userName, userEmail }: Proj
               </p>
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {projects.map((project) => (
                 <Card
                   key={project.id}
@@ -287,7 +286,7 @@ export function ProjectsDashboard({ initialProjects, userName, userEmail }: Proj
                   <CardHeader className="space-y-3 pb-3">
                     <div className="flex items-start justify-between gap-3">
                       <CardTitle className="line-clamp-1 text-base">{project.name}</CardTitle>
-                      <div className="flex gap-2">
+                      <div className="flex items-center gap-1.5">
                         <Button
                           type="button"
                           onClick={(e) => {
@@ -295,12 +294,13 @@ export function ProjectsDashboard({ initialProjects, userName, userEmail }: Proj
                             openEditModal(project);
                           }}
                           variant="outline"
-                          size="icon"
-                          className="size-8 border-zinc-200 bg-transparent text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                          size="sm"
+                          className="h-8 gap-1.5 border-zinc-200 bg-transparent px-2 text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
                           aria-label={`Edit ${project.name}`}
                           title="Edit project"
                         >
                           <Pencil className="size-4" />
+                          <span className="text-xs">Edit</span>
                         </Button>
                         <Button
                           type="button"
@@ -309,16 +309,17 @@ export function ProjectsDashboard({ initialProjects, userName, userEmail }: Proj
                             openDeleteModal(project);
                           }}
                           variant="destructive"
-                          size="icon"
-                          className="size-8"
+                          size="sm"
+                          className="h-8 gap-1.5 px-2"
                           aria-label={`Delete ${project.name}`}
                           title="Delete project"
                         >
                           <Trash2 className="size-4" />
+                          <span className="text-xs">Delete</span>
                         </Button>
                       </div>
                     </div>
-                    <CardDescription className="line-clamp-2 min-h-10">
+                    <CardDescription className="line-clamp-2 min-h-6">
                       {project.description || "No description added yet."}
                     </CardDescription>
                   </CardHeader>

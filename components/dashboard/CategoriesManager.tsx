@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { Check, Code2, Copy, CopyCheck, ExternalLink, FileText, HelpCircle, MessageSquare, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -62,6 +63,7 @@ export function CategoriesManager({ projectId, initialCategories }: CategoriesMa
   const [embedCategory, setEmbedCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -221,69 +223,93 @@ export function CategoriesManager({ projectId, initialCategories }: CategoriesMa
           No categories found.
         </p>
       ) : (
-        <div className="space-y-3">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {categories.map((category) => (
-            <Card key={category.id}>
-              <CardContent className="space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="font-medium text-zinc-900 dark:text-zinc-50">{category.name}</p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">Slug: {category.slug}</p>
+            <Link href={`/dashboard/projects/${projectId}/categories/${category.id}`} key={category.id}>
+            <Card
+              key={category.id}
+              className="border-zinc-200/80 transition-all hover:shadow-md dark:border-zinc-800"
+            >
+              <CardContent className="">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="truncate text-md font-semibold text-zinc-900 dark:text-zinc-50">{category.name}</p>
                 </div>
-                <Badge variant={category.isActive ? "default" : "secondary"}>
+                <div className="flex items-center gap-2">
+                <Badge className="h-5 px-2 text-[10px]" variant={category.isActive ? "default" : "secondary"}>
                   {category.isActive ? "Active" : "Inactive"}
                 </Badge>
+                <Link href={`/submit/${category.id}`} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="size-3.5" />
+                </Link>
+                </div>
               </div>
 
-              {category.description && (
-                <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">{category.description}</p>
-              )}
+              <p className="mt-2 line-clamp-1 text-sm text-zinc-600 dark:text-zinc-300">
+                {category.description || "No description added yet."}
+              </p>
 
-              <div className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                Questions: {category.questionsCount} | Testimonials: {category.testimonialsCount}
+              <div className="mt-2.5 flex flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+                <div className="inline-flex items-center gap-1">
+                  <span>Questions: {category.questionsCount}</span>
+                </div>
+                <span>•</span>
+                <div className="inline-flex items-center gap-1">
+                  <span>Testimonials: {category.testimonialsCount}</span>
+                </div>
               </div>
 
-              <div className="mt-3 flex gap-2">
+              <div className="mt-2.5 flex flex-wrap gap-1.5">
                 <Button
                   type="button"
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
                     setEmbedCategory(category);
                     setIsEmbedOpen(true);
                   }}
                   variant="outline"
                   size="sm"
+                  className="h-8 gap-1 px-2 text-xs"
+                  aria-label={`Get embed code for ${category.name}`}
+                  title="Embed code"
                 >
-                  Embed code
-                </Button>
-                <Button asChild variant="outline" size="sm">
-                  <Link href={`/submit/${category.id}`} target="_blank" rel="noopener noreferrer">
-                    Open actual form
-                  </Link>
-                </Button>
-                <Button asChild size="sm">
-                  <Link href={`/dashboard/projects/${projectId}/categories/${category.id}`}>
-                    Open questions
-                  </Link>
+                  <Code2 className="size-3.5" />
+                  <span>Embed</span>
                 </Button>
                 <Button
                   type="button"
-                  onClick={() => openEditModal(category)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    openEditModal(category);
+                  }}
                   variant="outline"
                   size="sm"
+                  className="h-8 gap-1 px-2 text-xs"
+                  aria-label={`Edit ${category.name}`}
+                  title="Edit category"
                 >
-                  Edit
+                  <Pencil className="size-3.5" />
+                  <span>Edit</span>
                 </Button>
                 <Button
                   type="button"
-                  onClick={() => openDeleteModal(category)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    openDeleteModal(category);
+                  }}
                   variant="destructive"
                   size="sm"
+                  className="h-8 gap-1 px-2 text-xs"
+                  aria-label={`Delete ${category.name}`}
+                  title="Delete category"
                 >
-                  Delete
+                  <Trash2 className="size-3.5" />
+                  <span>Delete</span>
                 </Button>
               </div>
               </CardContent>
             </Card>
+            </Link>
           ))}
         </div>
       )}
@@ -490,25 +516,28 @@ export function CategoriesManager({ projectId, initialCategories }: CategoriesMa
             }
           }}
         >
-          <DialogContent>
+          <DialogContent className="min-w-[500px]">
             <DialogHeader>
               <DialogTitle>{`Embed code: ${embedCategory.name}`}</DialogTitle>
               <DialogDescription>Paste this iframe where you want testimonials to appear.</DialogDescription>
             </DialogHeader>
-            <code className="block whitespace-pre-wrap rounded-md border p-3 text-xs">
-              {`<iframe src="${typeof window !== "undefined" ? window.location.origin : ""}/embed/testimonials/${embedCategory.id}" width="100%" height="600" style="border:0;" loading="lazy"></iframe>`}
-            </code>
-            <DialogFooter>
+            <code className="relative block whitespace-pre-wrap rounded-md border p-3 text-xs">
               <Button
                 type="button"
                 onClick={async () => {
                   const embedCode = `<iframe src="${window.location.origin}/embed/testimonials/${embedCategory.id}" width="100%" height="600" style="border:0;" loading="lazy"></iframe>`;
                   await navigator.clipboard.writeText(embedCode);
+                  setCopied(true);
+                  setTimeout(() => {
+                    setCopied(false);
+                  }, 2000);
                 }}
+                className="absolute top-0 right-0"
               >
-                Copy embed code
+                {copied ? <CopyCheck className="size-3.5" /> : <Copy className="size-3.5" />}
               </Button>
-            </DialogFooter>
+              {`<iframe src="${typeof window !== "undefined" ? window.location.origin : ""}/embed/testimonials/${embedCategory.id}" width="100%" height="600" style="border:0;" loading="lazy"></iframe>`}
+            </code>
           </DialogContent>
         </Dialog>
       )}

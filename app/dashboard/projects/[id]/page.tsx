@@ -51,6 +51,10 @@ export default async function ProjectOverviewPage({ params }: Props) {
     (sum, category) => sum + category._count.testimonials,
     0
   );
+  const categoriesWithTestimonials = project.categories.filter(
+    (category) => category._count.testimonials > 0
+  ).length;
+  const emptyCategories = totalCategories - categoriesWithTestimonials;
   const approvedTestimonials = project.categories.reduce(
     (sum, category) =>
       sum + category.testimonials.filter((testimonial) => testimonial.status === "approved").length,
@@ -101,14 +105,14 @@ export default async function ProjectOverviewPage({ params }: Props) {
         </Card>
         <Card>
           <CardHeader>
-            <CardDescription>Approved</CardDescription>
-            <CardTitle>{approvedTestimonials}</CardTitle>
+            <CardDescription>Categories with Testimonials</CardDescription>
+            <CardTitle>{categoriesWithTestimonials}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader>
-            <CardDescription>Pending</CardDescription>
-            <CardTitle>{pendingTestimonials}</CardTitle>
+            <CardDescription>Empty Categories</CardDescription>
+            <CardTitle>{emptyCategories}</CardTitle>
           </CardHeader>
         </Card>
       </div>

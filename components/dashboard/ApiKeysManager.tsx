@@ -171,11 +171,11 @@ export function ApiKeysManager({ projectId, initialKeys }: ApiKeysManagerProps) 
               <CardContent>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="font-medium text-zinc-900 dark:text-zinc-50">{key.name}</p>
+                  <p className="font-medium text-zinc-900 text-md tracking-wide dark:text-zinc-50">{key.name}</p>
                   <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                     Created: {formatDate(key.createdAt)}
                   </p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                     Last used: {formatDate(key.lastUsedAt)}
                   </p>
                 </div>

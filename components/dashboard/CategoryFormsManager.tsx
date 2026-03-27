@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ExternalLink } from "lucide-react";
 
 type QuestionType =
   | "text"
@@ -274,21 +275,6 @@ export function CategoryFormsManager({
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
             All questions for category: <strong>{categoryName}</strong>
           </p>
-          <Link
-            href={`/submit/${categoryId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-2 inline-block text-xs font-medium text-blue-600 underline dark:text-blue-400"
-          >
-            Open actual form
-          </Link>
-          <button
-            type="button"
-            onClick={() => setIsEmbedOpen(true)}
-            className="mt-2 ml-3 inline-block text-xs font-medium text-blue-600 underline dark:text-blue-400"
-          >
-            Embed code
-          </button>
         </div>
         <Button
           type="button"
@@ -368,7 +354,7 @@ export function CategoryFormsManager({
           }}
         >
           <form onSubmit={handleCreate} className="space-y-3">
-            <div>
+            <div className="flex flex-col gap-2">
               <Label htmlFor="create-form-label">Label</Label>
               <Input
                 id="create-form-label"
@@ -380,7 +366,7 @@ export function CategoryFormsManager({
               />
             </div>
 
-            <div>
+            <div className="flex flex-col gap-2">
               <Label htmlFor="create-form-type">Type</Label>
               <Select
                 value={createType}
@@ -400,7 +386,7 @@ export function CategoryFormsManager({
               </Select>
             </div>
 
-            <div>
+            <div className="flex flex-col gap-2">
               <Label htmlFor="create-form-placeholder">Placeholder (optional)</Label>
               <Input
                 id="create-form-placeholder"
@@ -412,7 +398,7 @@ export function CategoryFormsManager({
             </div>
 
             {["dropdown", "checkbox", "radio"].includes(createType) && (
-              <div>
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="create-form-options">Options (comma separated)</Label>
                 <Input
                   id="create-form-options"
@@ -424,7 +410,7 @@ export function CategoryFormsManager({
               </div>
             )}
 
-            <Label className="flex items-center gap-2">
+            <Label className="flex items-center gap-2 mt-2">
               <input
                 type="checkbox"
                 checked={createRequired}
@@ -468,7 +454,7 @@ export function CategoryFormsManager({
           }}
         >
           <form onSubmit={handleEdit} className="space-y-3">
-            <div>
+            <div className="flex flex-col gap-2">
               <Label htmlFor="edit-form-label">Label</Label>
               <Input
                 id="edit-form-label"
@@ -480,7 +466,7 @@ export function CategoryFormsManager({
               />
             </div>
 
-            <div>
+            <div className="flex flex-col gap-2">
               <Label htmlFor="edit-form-type">Type</Label>
               <Select
                 value={editType}
@@ -500,7 +486,7 @@ export function CategoryFormsManager({
               </Select>
             </div>
 
-            <div>
+            <div className="flex flex-col gap-2">
               <Label htmlFor="edit-form-placeholder">Placeholder (optional)</Label>
               <Input
                 id="edit-form-placeholder"
@@ -512,7 +498,7 @@ export function CategoryFormsManager({
             </div>
 
             {["dropdown", "checkbox", "radio"].includes(editType) && (
-              <div>
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="edit-form-options">Options (comma separated)</Label>
                 <Input
                   id="edit-form-options"
@@ -524,7 +510,7 @@ export function CategoryFormsManager({
               </div>
             )}
 
-            <Label className="flex items-center gap-2">
+            <Label className="flex items-center gap-2 mt-2">
               <input
                 type="checkbox"
                 checked={editRequired}

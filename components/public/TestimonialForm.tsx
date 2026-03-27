@@ -107,16 +107,6 @@ export function TestimonialForm({ category, questions }: TestimonialFormProps) {
         <p className="text-sm text-zinc-500">This form has no questions yet.</p>
       ) : (
         <>
-          <div className="space-y-2">
-            <Label>Your name (optional)</Label>
-            <Input
-              type="text"
-              value={submittedBy}
-              onChange={(e) => setSubmittedBy(e.target.value)}
-              placeholder="John Doe"
-            />
-          </div>
-
           <div className="space-y-6 rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
             {questions.map((q) => (
               <FormField

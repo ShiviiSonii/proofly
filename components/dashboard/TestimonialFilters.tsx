@@ -53,7 +53,7 @@ export function TestimonialFilters({
 
   return (
     <form action={applyFilters} className="grid gap-3 sm:grid-cols-3">
-      <div>
+      <div className="flex flex-col gap-2">
         <Label htmlFor="status">Status</Label>
         <Select name="status" defaultValue={statusValue}>
           <SelectTrigger id="status" className="mt-1 w-full">
@@ -68,7 +68,7 @@ export function TestimonialFilters({
         </Select>
       </div>
 
-      <div>
+      <div className="flex flex-col gap-2">
         <Label htmlFor="categoryId">Category</Label>
         <Select name="categoryId" defaultValue={categoryValue}>
           <SelectTrigger id="categoryId" className="mt-1 w-full">
