@@ -14,6 +14,17 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
       include: {
         _count: { select: { categories: true } },
+        categories: {
+          select: {
+            _count: {
+              select: {
+                testimonials: {
+                  where: { status: "approved" },
+                },
+              },
+            },
+          },
+        },
       },
     });
 
