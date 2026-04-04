@@ -1,7 +1,10 @@
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { CategoryFormsManager } from "@/components/dashboard/CategoryFormsManager";
+import {
+  CategoryFormsManager,
+  type FormQuestion,
+} from "@/components/dashboard/CategoryFormsManager";
 
 type Props = {
   params: Promise<{ id: string; categoryId: string }>;
@@ -42,7 +45,7 @@ export default async function CategoryFormsPage({ params }: Props) {
       projectId={id}
       categoryId={category.id}
       categoryName={category.name}
-      initialQuestions={category.questions}
+      initialQuestions={category.questions as FormQuestion[]}
     />
   );
 }

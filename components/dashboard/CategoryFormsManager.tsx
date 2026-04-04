@@ -48,7 +48,7 @@ const QUESTION_TYPES: QuestionType[] = [
   "video",
 ];
 
-type FormQuestion = {
+export type FormQuestion = {
   id: string;
   label: string;
   type: QuestionType;

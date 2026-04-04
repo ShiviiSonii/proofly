@@ -5,13 +5,14 @@ import { randomBytes, createHash } from "crypto";
 
 async function getProjectAndCheckOwner(projectId: string) {
   const session = await auth();
-  if (!session?.user?.id) return { error: "Unauthorized", status: 401 as const };
+  const userId = session?.user?.id;
+  if (!userId) return { error: "Unauthorized", status: 401 as const };
 
   const project = await prisma.project.findUnique({ where: { id: projectId } });
   if (!project) return { error: "Project not found", status: 404 as const };
-  if (project.ownerId !== session.user.id) return { error: "Forbidden", status: 403 as const };
+  if (project.ownerId !== userId) return { error: "Forbidden", status: 403 as const };
 
-  return { project, session };
+  return { project, session, userId };
 }
 
 function generateApiKeyToken() {
@@ -78,7 +79,7 @@ export async function POST(
 
     const apiKey = await prisma.apiKey.create({
       data: {
-        userId: result.session.user.id,
+        userId: result.userId,
         projectId,
         name,
         tokenHash,
