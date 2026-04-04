@@ -1,9 +1,15 @@
 import { NextResponse } from "next/server";
+import type { Session } from "next-auth";
+import type { Project, TestimonialCategory } from "@/generated/prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
 
-async function getProjectAndCheckOwner(projectId: string) {
+type CategoryRouteError = { error: string; status: 401 | 403 | 404 };
+
+async function getProjectAndCheckOwner(
+  projectId: string
+): Promise<CategoryRouteError | { project: Project; session: Session }> {
   const session = await auth();
   if (!session?.user?.id) return { error: "Unauthorized", status: 401 as const };
 
@@ -17,7 +23,10 @@ async function getProjectAndCheckOwner(projectId: string) {
 async function getCategoryAndCheckProject(
   projectId: string,
   categoryId: string
-) {
+): Promise<
+  | CategoryRouteError
+  | { category: TestimonialCategory; project: Project; session: Session }
+> {
   const result = await getProjectAndCheckOwner(projectId);
   if ("error" in result) return result;
 

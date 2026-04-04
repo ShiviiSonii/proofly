@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { Prisma } from "@/generated/prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -68,15 +69,7 @@ export async function PUT(
     const body = await req.json();
     const { label, type, required, order, placeholder, options, validation } = body;
 
-    const data: {
-      label?: string;
-      type?: string;
-      required?: boolean;
-      order?: number;
-      placeholder?: string | null;
-      options?: unknown;
-      validation?: unknown;
-    } = {};
+    const data: Prisma.FormQuestionUpdateInput = {};
 
     if (label !== undefined) {
       if (typeof label !== "string" || !label.trim()) {
@@ -96,8 +89,8 @@ export async function PUT(
     if (typeof required === "boolean") data.required = required;
     if (typeof order === "number") data.order = order;
     if (placeholder !== undefined) data.placeholder = placeholder?.trim() || null;
-    if (options !== undefined) data.options = options;
-    if (validation !== undefined) data.validation = validation;
+    if (options !== undefined) data.options = options as Prisma.InputJsonValue;
+    if (validation !== undefined) data.validation = validation as Prisma.InputJsonValue;
 
     const question = await prisma.formQuestion.update({
       where: { id: questionId },
