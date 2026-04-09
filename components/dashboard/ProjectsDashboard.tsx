@@ -218,7 +218,7 @@ export function ProjectsDashboard({ initialProjects, userName, userEmail }: Proj
     <div className="space-y-4">
       <div className="p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-lg font-heading tracking-wider">Proofly</p>
+          <img src="/logo.png" alt="Proofly" className="h-10 rounded-md" />
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <div className="flex items-center gap-3 px-3 py-2">

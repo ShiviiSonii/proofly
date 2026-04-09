@@ -97,7 +97,7 @@ export function ProjectSidebar({
     <aside className="flex h-full bg-background min-h-[calc(100vh-2rem)] w-full flex-col text-foreground lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] lg:min-h-[calc(100vh-3rem)] lg:w-72 lg:shrink-0 lg:self-start lg:overflow-y-auto">
       <div className="">
         <div className="min-w-0">
-          <p className="truncate text-lg font-heading tracking-wider">Proofly</p>
+          <img src="/logo.png" alt="Proofly" className="h-10 rounded-md" />
         </div>
         <Select
           value={projectId}
